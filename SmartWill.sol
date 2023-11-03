@@ -20,7 +20,7 @@ constructor (address _addressSpouse, address _addressElderChild, address _addres
     isGrantorAlive = true;
     isSpouseAlive = true;
     grantorBalance = address(this).balance;
-    souseBalance = elderChildBalance = youngerChildBalance = 0;
+    spouseBalance = elderChildBalance = youngerChildBalance = 0;
 }
 
 function handleLifeEvent(bool _isGrantorAlive, bool _isSpouseAlive) external {
