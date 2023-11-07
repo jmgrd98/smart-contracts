@@ -100,5 +100,7 @@ contract RealEstateContract {
         require(state != ContractState.TitleCleared, "Buyer cannot cancel after title is cleared.");
         state = ContractState.Completed;
     }
+    uint refundAmount = purchasePrice / 2; // Devolvendo o dinheiro do comprador
+    require(usdtToken.transferFrom(seller, buyer, refundAmount), "Refund transfer failed");
 }
 }
