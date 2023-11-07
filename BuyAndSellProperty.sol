@@ -58,12 +58,14 @@ contract RealEstateContract {
         }
     }
 
+    // Função de pagamento de entrada, apenas o comprador pode acionar essa função.
     function makeDownPayment(uint amount) public onlyBuyer {
-        require(state == ContractState.OnInspection, "Down payment can only be made during the inspection phase.");
-        require(block.timestamp < propertyDocumentsPresentationDate, "Down payment period has ended.");
-        require(usdtToken.transferFrom(buyer, seller, amount), "Down payment transfer failed");
-    }
+        amount = purchasePrice / 2; // Aqui define-se o valor do pagamento de entrada.
+        require(state == ContractState.OnInspection, "Down payment can only be made during the inspection phase."); // Só irá acontecer se o contrato estiver em vistoria.
+        require(block.timestamp < propertyDocumentsPresentationDate, "Down payment period has ended."); // Só pode acontecer até a data definida no começo do contrato entre as partes;
+        require(usdtToken.transferFrom(buyer, seller, amount), "Down payment transfer failed"); // Efetivar a transferência em USDT da carteira do comprador para a carteira do vendedor.
 
+    // Função de pagamento final, apenas o comprador pode acionar essa função.
     function makeFinalPayment() public onlyBuyer {
         require(state == ContractState.Completed, "Final payment can only be made after the transaction is completed.");
         require(block.timestamp < closingDate, "Closing date has passed.");
