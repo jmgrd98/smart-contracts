@@ -1,2 +1,1 @@
-# voting-smart-contract
- Simple smart contract made for voting
+# Smart contracts collection
