@@ -10,7 +10,7 @@ contract RealEstateContract {
     address public seller; // O endereço da carteira do vendedor.
     address public buyer; //O endereço da carteira do comprador.
     uint public purchasePrice; // Preço do imóvel.
-    uint public propertyDocumentsPresentationDate // Data da apresentação de documentos do imóvel, quando será debitado o valor de entrada do imóvel.
+    uint public downPaymentDate // Data de quando será debitado o valor de entrada do imóvel.
     uint public closingDate; // Data de fechamento, quando será debitado o valor restante do imóvel.
     bool public propertyInspected; // Se o contrato foi inspecionado ou não
     bool public titleCleared;
@@ -34,11 +34,13 @@ contract RealEstateContract {
         _;
     }
 
+    // Essa função acontece assim que o contrato é colocado no ar (ou seja, na blockchain)
     constructor(address _buyer, uint _purchasePrice, uint _closingDate) {
-        seller = msg.sender;
-        buyer = _buyer;
-        purchasePrice = _purchasePrice;
-        closingDate = _closingDate;
+        seller = msg.sender; // O vendedor será quem está colocando o contrato no ar.
+        buyer = _buyer; // O comprador será definido na hora de colocar o contrato no ar.
+        purchasePrice = _purchasePrice; // O preço da compra será definida na hora de colocar o contrato no ar.
+        downPaymentDate = _downPaymentDate; // O preço do pagamento do valor de entrada será definido nesse mesmo momento.
+        closingDate = _closingDate; // O preço do pagamento final será definido nesse mesmo momento.
     }
 
     // Função de requerer vistoria, apenas o comprador pode chamar essa função.
@@ -61,14 +63,14 @@ contract RealEstateContract {
     // Função de pagamento de entrada, apenas o comprador pode acionar essa função.
     function makeDownPayment(uint amount) public onlyBuyer {
         amount = purchasePrice / 2; // Aqui define-se o valor do pagamento de entrada.
-        require(state == ContractState.OnInspection, "Down payment can only be made during the inspection phase."); // Só irá acontecer se o contrato estiver em vistoria.
+        require(state == ContractState.OnInspection, "Down payment can only be made during the inspection phase."); // Só pode acontecer se o contrato estiver em vistoria.
         require(block.timestamp < propertyDocumentsPresentationDate, "Down payment period has ended."); // Só pode acontecer até a data definida no começo do contrato entre as partes;
         require(usdtToken.transferFrom(buyer, seller, amount), "Down payment transfer failed"); // Efetivar a transferência em USDT da carteira do comprador para a carteira do vendedor.
 
     // Função de pagamento final, apenas o comprador pode acionar essa função.
     function makeFinalPayment() public onlyBuyer {
-        require(state == ContractState.Completed, "Final payment can only be made after the transaction is completed.");
-        require(block.timestamp < closingDate, "Closing date has passed.");
+        require(state == ContractState.Completed, "Final payment can only be made after the transaction is completed."); // Só pode acontecer se o contrato precisa estar em estágio final.
+        require(block.timestamp < closingDate, "Closing date has passed."); // Só pode acontecer até a data final definida no começo do contrato
         require(usdtToken.transferFrom(buyer, seller, purchasePrice), "Final payment transfer failed");
     }
 
