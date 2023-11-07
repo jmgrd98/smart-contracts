@@ -6,16 +6,23 @@ import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contr
 
 contract RealEstateContract {
     //Aqui define-se todas as entidades do contrato
-    address public seller; // O endereço da carteira do vendedor
-    address public buyer; //O endereço da carteira do comprador
-    uint public purchasePrice; // Preço do imóvel
-    uint public closingDate; // Data de fechamento
+    IERC20 public usdtToken = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48; // A criptomoeda em que serão feitas as transações, nesse caso USDT (dólar).
+    address public seller; // O endereço da carteira do vendedor.
+    address public buyer; //O endereço da carteira do comprador.
+    uint public purchasePrice; // Preço do imóvel.
+    uint public propertyDocumentsPresentationDate // Data da apresentação de documentos do imóvel, quando será debitado o valor de entrada do imóvel.
+    uint public closingDate; // Data de fechamento, quando será debitado o valor restante do imóvel.
     bool public propertyInspected; // Se o contrato foi inspecionado ou não
     bool public titleCleared;
     
     // Aqui define-se os estados (ou estágios) do contrato
     enum ContractState { Created, OnInspection, Inspected, TitleCleared, Completed }
     ContractState public state = ContractState.Created;
+
+    event InspectionRequested();
+    event InspectionCompleted(bool propertyInspected);
+    event TitleCleared();
+    event OwnershipTransferred();
 
     modifier onlySeller() {
         require(msg.sender == seller, "Only the seller can call this function");
@@ -49,6 +56,18 @@ contract RealEstateContract {
         } else {
             state = ContractState.Completed;
         }
+    }
+
+    function makeDownPayment(uint amount) public onlyBuyer {
+        require(state == ContractState.OnInspection, "Down payment can only be made during the inspection phase.");
+        require(block.timestamp < propertyDocumentsPresentationDate, "Down payment period has ended.");
+        require(usdtToken.transferFrom(buyer, seller, amount), "Down payment transfer failed");
+    }
+
+    function makeFinalPayment() public onlyBuyer {
+        require(state == ContractState.Completed, "Final payment can only be made after the transaction is completed.");
+        require(block.timestamp < closingDate, "Closing date has passed.");
+        require(usdtToken.transferFrom(buyer, seller, purchasePrice), "Final payment transfer failed");
     }
 
     // Limpar título do vendedor do imóvel, apenas o comprador pode chamar essa função.
