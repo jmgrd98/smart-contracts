@@ -88,4 +88,17 @@ contract RealEstateContract {
         buyer = address(0); // Define o antigo como comprador como ninguém.
         state = ContractState.Created; // Muda o estado do contrato para criado novamente.
     }
+
+    function cancelContract() public {
+    require(state != ContractState.Completed, "Contract cannot be canceled after completion.");
+    
+    if (msg.sender == seller) {
+        // Seller can cancel the contract at any time before completion.
+        state = ContractState.Completed;
+    } else if (msg.sender == buyer) {
+        // Buyer can cancel the contract before making the final payment.
+        require(state != ContractState.TitleCleared, "Buyer cannot cancel after title is cleared.");
+        state = ContractState.Completed;
+    }
+}
 }
