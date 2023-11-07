@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.9;
+pragma solidity ^0.8.0;
+
 
 contract RealEstateContract {
     address public seller;
@@ -8,6 +9,7 @@ contract RealEstateContract {
     uint public closingDate;
     bool public propertyInspected;
     bool public titleCleared;
+    
 
     enum ContractState { Created, Inspected, TitleCleared, Completed }
     ContractState public state = ContractState.Created;
