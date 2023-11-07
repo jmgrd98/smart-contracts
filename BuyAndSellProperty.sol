@@ -1,16 +1,19 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
+import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/ERC20.sol";
+
 
 contract RealEstateContract {
-    address public seller;
-    address public buyer;
-    uint public purchasePrice;
-    uint public closingDate;
-    bool public propertyInspected;
+    //Aqui define-se todas as entidades do contrato
+    address public seller; // Vendedor
+    address public buyer; //Comprador
+    uint public purchasePrice; // Preço do imóvel
+    uint public closingDate; // Data de fechamento
+    bool public propertyInspected; // Se o contrato foi inspecionado ou não
     bool public titleCleared;
     
-
+    // Aqui define-se os estados (ou estágios) do contrato
     enum ContractState { Created, Inspected, TitleCleared, Completed }
     ContractState public state = ContractState.Created;
 
@@ -24,8 +27,8 @@ contract RealEstateContract {
         _;
     }
 
-    constructor(address _buyer, uint _purchasePrice, uint _closingDate) {
-        seller = msg.sender;
+    constructor(address _buyer, address _seller, uint _purchasePrice, uint _closingDate) {
+        seller = _seller;
         buyer = _buyer;
         purchasePrice = _purchasePrice;
         closingDate = _closingDate;
